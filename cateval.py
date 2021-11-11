@@ -33,15 +33,7 @@ def plot_heatmap(labels, values):
     plt.show()
 
 
-def evaluate():
-    parser = argparse.ArgumentParser()
-    group = parser.add_argument_group()
-    group.add_argument('--gold', '-g', help="File with parses in bracketed format as gold standard")
-    group.add_argument('--eval', '-e', help="File with parses in bracketed format to evaluate")
-    group.add_argument('--save', '-s', help="Save precomputed parse analysis to a file")
-    group.add_argument('--load', '-l', help="Load precomputed parse analysis from a file")
-    args, unknown_args = parser.parse_known_args()
-
+def evaluate(args):
     if args.load:
         with open(args.load, 'rb') as f:
             total_eval = pickle.load(f)
@@ -60,10 +52,11 @@ def evaluate():
     return total_eval
 
 
-def analyze_errors(total_eval):
+def analyze_errors(total_eval, tags_to_analyse=None):
     total_eval.print_most_common(100)
+    if not tags_to_analyse:
+        tags_to_analyse = tuple()
     # tags_to_analyse = ('SIMPX', 'FKOORD', 'KONJ')
-    tags_to_analyse = ('PP',)
     print()
     print(f"Analysis: {tags_to_analyse}")
 
@@ -101,7 +94,24 @@ def analyze_errors(total_eval):
     return zip(*labels_values)
 
 
+def parse_arguments():
+    parser = argparse.ArgumentParser()
+    group = parser.add_argument_group()
+    group.add_argument('--gold', '-g', help="File with parses in bracketed format as gold standard")
+    group.add_argument('--eval', '-e', help="File with parses in bracketed format to evaluate")
+    group.add_argument('--save', '-s', help="Save precomputed parse analysis to a file")
+    group.add_argument('--load', '-l', help="Load precomputed parse analysis from a file")
+    group.add_argument('--tags', '-t', help="Tags to analyze")
+    arguments, unknown_args = parser.parse_known_args()
+    return arguments
+
+
 if __name__ == "__main__":
-    total_eval = evaluate()
-    labels, values = analyze_errors(total_eval)
+    args = parse_arguments()
+    total_eval = evaluate(args)
+    if args.tags:
+        tags_to_analyze = [s.strip() for s in args.tags.split(",")]
+    else:
+        tags_to_analyze = tuple()
+    labels, values = analyze_errors(total_eval, tags_to_analyze)
     plot_heatmap(labels, values)
