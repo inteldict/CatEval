@@ -1,6 +1,5 @@
-from collections import Counter
-
 import os
+from collections import Counter
 
 from evalp import parseBrackets
 from utils import open_gold_eval_files
@@ -112,8 +111,9 @@ def print_proposed_alternatives(label, error_type, proposed, tags, n):
     for k, v in c.most_common(n):
         for tag in tags:
             if tag in k:
-                proposed_str = ' '.join((f"{k}: {v}" for (k, v) in proposed[k].items()))
-                result.append(f"{k}, {v}, {proposed_str}")
+                proposed_str = ', '.join(
+                    (f"{k}: {v}" for (k, v) in sorted(proposed[k].items(), key=lambda item: item[1], reverse=True)))
+                result.append(f"{k}[{v}] => {proposed_str}")
     if result:
         print(f"{label}:")
         print('\n'.join(result))
@@ -153,6 +153,14 @@ def core_label(s: str) -> str:
     elif '=' in s:
         return s.split('=')[0]
     return s
+
+
+# def core_label(s: str) -> str:
+#     if '=' in s:
+#         s = s.split('=')[0]
+#     if '-' in s:
+#         s = s.split('-')[0]
+#     return s
 
 
 def unmatched_tags(gold_pos, test_pos):
@@ -206,7 +214,11 @@ def analyze_parses(gold, test):
                     continue  # a perfect match of the span and gold and test labels
                 if core_label(label) in part_test_labels:
                     part_wrong_label_spans.append((span, label))
-                    proposed_part_wrong_label_spans.setdefault(label, Counter()).update(part_test_labels)
+                    proposed_labels = set()
+                    for proposed_label in test_labels:
+                        if label.startswith(core_label(proposed_label)):
+                            proposed_labels.add(proposed_label)
+                    proposed_part_wrong_label_spans.setdefault(label, Counter()).update(proposed_labels)
                 else:  # span is correct, but all test labels are wrong
                     wrong_label_spans.append((span, label))
                     proposed_wrong_label_spans.setdefault(label, Counter()).update(part_test_labels)

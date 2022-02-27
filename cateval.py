@@ -54,7 +54,7 @@ def evaluate(args):
 
 def analyze_errors(total_eval, tags_to_analyse=None):
     total_eval.print_most_common(100)
-    if not tags_to_analyse:
+    if tags_to_analyse is None:
         tags_to_analyse = tuple()
     # tags_to_analyse = ('SIMPX', 'FKOORD', 'KONJ')
     print()
