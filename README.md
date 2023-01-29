@@ -38,4 +38,8 @@ squarify  # pip install squarify
 This is an example of how you may run evaluation on the provided example.
 ```
 python3 cateval.py --gold data/sample2.gld --eval data/sample2.eval --tags=SX,VAFIN,NX
+
 ```
+
+## Graphical result
+![Screenshot from 2023-01-29 15-38-31](https://user-images.githubusercontent.com/1679022/215333765-b685a81e-6645-45c2-8d78-b5efbcf42d21.png)
